@@ -1,0 +1,118 @@
+<script>
+    $("#btnsave").click(function(){
+
+       // console.log("save button clicked ");
+        output="";
+        var nm= $("#nameid").val();
+        var em= $("#emailid").val();
+        var pass= $("#passwordid").val();
+        var csrf = $("input[name='csrfmiddlewaretoken']").val();
+
+        if (nm == ""){
+            console.log("please enter name");
+        }else if(em == ""){
+            console.log("please enter email");
+        }else if(pass == ""){
+            console.log("please enter password");
+        }else{
+
+            mydata={name : nm ,email : em ,password: pass, csrfmiddlewaretoken:csrf};
+            $.ajax({
+                url: "{% url 'save' %} ",
+                method : "POST",
+                data: mydata,
+                dataType:"json",
+            
+                success : function (data){
+                    if(data.status = 'save'){
+                        console.log("Forms data save successfully ");
+                        x = data.stud;
+                        for (i=0;i<x.length;i++){
+                            output += "<tr><td> " + x[i].name + "</td><td> <input type='button' class='btn-show' data-sid = " + x[i].id +  " value='Show data' />";
+                        } 
+                        $("#tbody").html(output);
+
+
+                        $('form')[0].reset();
+                    }
+                    if(data.status == 0){
+                       console.log(" unable to save data ");
+                    }
+                   
+                }  
+            });
+        }
+
+    });
+
+    $("tbody").on("click",".btn-show",function(){
+             
+        output1="";
+        let id = $(this).attr("data-sid") 
+        console.log(id)
+
+        var csrf = $("input[name='csrfmiddlewaretoken']").val();
+        mydata={ csrfmiddlewaretoken:csrf };
+        $.ajax({
+            url: "{% url 'show' %} ",
+            method : "POST",
+            data:mydata,
+            dataType:"json",
+            success : function (data){
+                if(data.status = 'save'){
+
+                    x = data.stud;
+                    for(i=0;i<x.length;i++){
+                        if(x[i].id == id){
+                            console.log(x[i])
+                            output1 += "<tr><td><h4><b>NAME</b></h4>" + x[i]['name'] + " </td><td><h4><b>EMAIL</b></h4>" + x[i]['email'] +  "</td><td><h4><b>PASSWORD</b></h4>" + x[i]['password'] +"</td><input type='button' class='btn-all' data-sid = 'allid' value='All Data' />";
+                        }
+                    }
+                    
+                    $("#tbody").html(output1);
+
+
+                }
+                
+            }
+
+
+
+
+        });
+
+
+    });
+    $("#allid").click(function(){
+
+        output="<table class='table'><tbody><th>NAMES</th><th> SHOW DATA </th>";
+        var csrf = $("input[name='csrfmiddlewaretoken']").val();
+        mydata={ csrfmiddlewaretoken:csrf };
+
+        $.ajax({
+            url: "{% url 'all' %} ",
+            method : "POST",
+            data:mydata,
+            dataType:"json",
+            success : function (data){
+
+                if(data.status = 'save'){
+                    x = data.stud;
+                    for (i=0;i<x.length;i++){
+                        output += "<tr><td> " + x[i].name + "</td><td> <input type='button' class='btn-show' data-sid = " + x[i].id +  " value='Show data' /></tbody></table>";
+                    } 
+                    $("#tbody").html(output);
+                }
+            }
+
+        });
+
+
+
+
+
+
+    });
+
+
+</script>
